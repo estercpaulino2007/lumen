@@ -1,5 +1,6 @@
 // Diccionario ES → EN. La interfaz está escrita en español (público principal: México) y se traduce en el navegador.
 export const EXACT: Record<string, string> = {
+  'Mira a la cámara: parpadea dos veces o gira suavemente la cabeza.': 'Look at the camera: blink twice or gently turn your head.', 'Perdimos tu rostro: mantente dentro del óvalo.': 'We lost your face: stay inside the oval.', 'Buscando tu rostro… acércate y busca buena luz de frente.': 'Looking for your face… move closer and face the light.',
   'Agregar usuario': 'Add user', 'Se genera una contraseña temporal que se muestra una sola vez. Queda en la auditoría.': 'A temporary password is generated and shown only once. It is audited.', 'Crear': 'Create', 'Arrastra para girar': 'Drag to rotate',
   'Base de conocimiento de LUMEN': 'LUMEN knowledge base',
   'Embudo de entrega': 'Delivery funnel', 'Dónde se quedan los resultados en el camino a la paciente': 'Where results get stuck on the way to the patient', 'Recibidos': 'Received', 'Leídos': 'Read', 'Asociación confirmada': 'Match confirmed', 'Avisados': 'Notified',
@@ -149,6 +150,7 @@ export const EXACT: Record<string, string> = {
 
 // Fragmentos para textos dinámicos (se aplican solo si no hubo coincidencia exacta). Más largos primero.
 export const FRAG: [string, string][] = [
+  ['Rostro detectado', 'Face detected'], ['Parpadeos:', 'Blinks:'], ['Parpadea dos veces o gira un poco la cabeza.', 'Blink twice or turn your head slightly.'],
   ['creado. Contraseña temporal (se muestra una sola vez):', 'created. Temporary password (shown only once):'], ['Usuario', 'User'],
   ['Modo demo: ese contacto no está en los datos de demostración. Usa 55 5123 1234 o anakaren.ruiz@ejemplo.test (o vuelve a cargar la demo).', 'Demo mode: that contact is not in the demo data. Use 55 5123 1234 or anakaren.ruiz@ejemplo.test (or reload the demo).'],
   ['Tienes', 'You have'], ['resultados esperando tu autorización.', 'results awaiting your authorization.'], ['Hoy tienes', 'Today you have'], ['documentos por revisar y', 'documents to review and'], ['pacientes por contactar.', 'patients to contact.'],

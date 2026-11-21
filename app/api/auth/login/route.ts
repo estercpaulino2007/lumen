@@ -1,3 +1,4 @@
+import { ensureDemo } from '@/lib/seed';
 import { z } from 'zod';
 import { api, body, json, reqMeta, HttpError } from '@/lib/http';
 import { readDB } from '@/lib/store';
@@ -6,6 +7,7 @@ import { rateLimited } from '@/lib/kv';
 import { audit } from '@/lib/audit';
 
 export const POST = api(async (req) => {
+  await ensureDemo();
   const { email, password } = await body(req, z.object({ email: z.string().email().max(120), password: z.string().min(1).max(200) }));
   const m = reqMeta(req);
   if (await rateLimited('login:ip:' + m.ipAddressHash, 20, 600) || await rateLimited('login:acct:' + email.toLowerCase(), 8, 600))

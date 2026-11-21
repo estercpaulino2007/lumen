@@ -1,3 +1,4 @@
+import { ensureDemo } from '@/lib/seed';
 import { z } from 'zod';
 import { api, body, json, reqMeta, HttpError } from '@/lib/http';
 import { mutate } from '@/lib/store';
@@ -8,6 +9,7 @@ import { findByContact, normContact, accessLog } from '@/lib/portal';
 import { audit } from '@/lib/audit';
 
 export const POST = api(async (req) => {
+  await ensureDemo();
   const { contact } = await body(req, z.object({ contact: z.string().min(5).max(120) }));
   const m = reqMeta(req);
   if (await rateLimited('otp:ip:' + m.ipAddressHash, 15, 900) || await rateLimited('otp:c:' + normContact(contact), 4, 900)) throw new HttpError(429, 'Demasiadas solicitudes. Intenta en 15 minutos o pide ayuda a EIRA.');

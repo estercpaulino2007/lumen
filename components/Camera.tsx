@@ -32,32 +32,37 @@ export function PresenceCheck({ onDone }: { onDone: (o: Outcome) => void }) {
         await fa.nets.faceLandmark68TinyNet.loadFromUri(CDN + '/model');
         if (stop) return;
         setPhase('running');
-        setMsg(challenge.current === 'parpadear' ? 'Mira a la cámara y parpadea dos veces.' : 'Mira a la cámara y gira la cabeza suavemente hacia un lado.');
-        let blinks = 0, closed = false, baseNose: number | null = null, turned = false, scores: number[] = [];
+        setMsg('Mira a la cámara: parpadea dos veces o gira suavemente la cabeza.');
+        let blinks = 0, closed = false, base: number | null = null, baseNose: number | null = null, turned = false, seen = 0;
+        const scores: number[] = [], ears: number[] = [];
         const t0 = Date.now();
-        while (!stop && Date.now() - t0 < 20000) {
-          const d = await fa.detectSingleFace(video.current, new fa.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })).withFaceLandmarks(true);
+        const opts = new fa.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.3 });
+        while (!stop && Date.now() - t0 < 25000) {
+          const v = video.current!;
+          if (v.readyState < 2) { await new Promise((r) => setTimeout(r, 150)); continue; }
+          const d = await fa.detectSingleFace(v, opts).withFaceLandmarks(true);
           if (d) {
-            scores.push(d.detection.score);
+            seen++; scores.push(d.detection.score);
             const lm = d.landmarks, box = d.detection.box;
-            if (challenge.current === 'parpadear') {
-              const e = (ear(lm.getLeftEye()) + ear(lm.getRightEye())) / 2;
-              if (e < 0.23) closed = true; else if (closed && e > 0.27) { closed = false; blinks++; }
-              setProgress(Math.min(1, blinks / 2));
-              if (blinks >= 2) break;
-            } else {
-              const nx = (lm.getNose()[3].x - box.x) / box.width;
-              if (baseNose == null) baseNose = nx;
-              const delta = Math.abs(nx - baseNose); setProgress(Math.min(1, delta / 0.12));
-              if (delta > 0.12) { turned = true; break; }
-            }
-          } else setMsg('No vemos tu rostro. Acércate y busca buena luz.');
-          await new Promise((r) => setTimeout(r, 120));
+            const e = (ear(lm.getLeftEye()) + ear(lm.getRightEye())) / 2;
+            ears.push(e); if (ears.length > 15) ears.shift();
+            if (ears.length >= 5) base = [...ears].sort((x, y) => x - y)[Math.floor(ears.length * 0.7)];
+            if (base) { if (e < base * 0.78) closed = true; else if (closed && e > base * 0.9) { closed = false; blinks++; } }
+            const nx = (lm.getNose()[3].x - box.x) / box.width;
+            if (baseNose == null && seen > 3) baseNose = nx;
+            const delta = baseNose == null ? 0 : Math.abs(nx - baseNose);
+            if (delta > 0.07) turned = true;
+            setProgress(Math.min(1, Math.max(blinks / 2, delta / 0.07)));
+            setMsg(`Rostro detectado (${Math.round(d.detection.score * 100)}%). ${blinks ? 'Parpadeos: ' + blinks + '/2. ' : ''}Parpadea dos veces o gira un poco la cabeza.`);
+            if (blinks >= 2 || turned) break;
+          } else setMsg(seen ? 'Perdimos tu rostro: mantente dentro del óvalo.' : 'Buscando tu rostro… acércate y busca buena luz de frente.');
+          await new Promise((r) => setTimeout(r, 90));
         }
-        const passed = challenge.current === 'parpadear' ? blinks >= 2 : turned;
+        challenge.current = blinks >= 2 ? 'parpadear' : turned ? 'girar' : 'ninguno';
+        const passed = blinks >= 2 || turned;
         const avg = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
         stream?.getTracks().forEach((t) => t.stop());
-        if (!stop) onDone({ outcome: passed && avg > 0.5 ? 'passed' : 'failed', score: Math.round(avg * 100) / 100, method: 'face-api-liveness', challenge: challenge.current });
+        if (!stop) onDone({ outcome: passed && avg > 0.3 ? 'passed' : 'failed', score: Math.round(avg * 100) / 100, method: 'face-api-liveness', challenge: challenge.current });
       } catch (e: any) {
         console.error('[camera]', e?.name, e?.message || e);
         stream?.getTracks().forEach((t) => t.stop());
@@ -76,7 +81,7 @@ export function PresenceCheck({ onDone }: { onDone: (o: Outcome) => void }) {
         <div className="absolute inset-x-0 bottom-0 h-1.5 bg-s2"><div className="h-full bg-safe transition-all" style={{ width: `${progress * 100}%` }} /></div>
       </div>
       <p className="text-center text-sm" aria-live="polite">{phase === 'running' && <ScanFace size={16} className="mr-1 inline text-sky" />}{msg}</p>
-      {phase === 'running' && <div className="text-center"><button className="btn-ghost text-xs" onClick={() => onDone({ outcome: 'failed', score: 0, method: 'face-api-liveness', challenge: 'omitido' })}>Continuar sin cámara</button></div>}
+      {(phase === 'running' || phase === 'loading') && <div className="text-center"><button className="btn-ghost text-xs" onClick={() => onDone({ outcome: 'failed', score: 0, method: 'face-api-liveness', challenge: 'omitido' })}>Continuar sin cámara</button></div>}
       {phase === 'error' && (
         <div className="space-y-2 text-center">
           <button className="btn-warn" onClick={() => onDone({ outcome: 'passed', score: 0.9, method: 'simulacion-rotulada', challenge: 'simulado' })}><FlaskConical size={16} />Simular verificación (modo demo, rotulado)</button>

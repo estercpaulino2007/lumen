@@ -44,10 +44,10 @@ export function PageHead({ title, sub, right }: { title: string; sub?: string; r
 }
 export const Logo = ({ small, vertical }: { small?: boolean; vertical?: boolean }) => (
   <div className={`flex items-center gap-2.5 ${vertical ? 'flex-col' : ''}`}>
-    <svg viewBox="0 0 64 40" className={small ? 'h-7 w-11' : vertical ? 'h-12 w-20' : 'h-10 w-16'} aria-hidden="true">
+    <svg viewBox="0 0 64 40" className={small ? 'h-7 w-11' : vertical ? 'h-9 w-14' : 'h-10 w-16'} aria-hidden="true">
       <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stopColor="#38BDF8" /><stop offset=".5" stopColor="#8B5CF6" /><stop offset="1" stopColor="#C084FC" /></linearGradient></defs>
       <path d="M32 20c-6-8-11-13-18-13C7 7 3 13 3 20s4 13 11 13c7 0 12-5 18-13zm0 0c6 8 11 13 18 13 7 0 11-6 11-13S57 7 50 7c-7 0-12 5-18 13z" fill="none" stroke="url(#lg)" strokeWidth="4.5" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 6px rgba(139,92,246,.8))' }} />
     </svg>
-    <span className={`font-display font-semibold tracking-[0.28em] ${small ? 'text-base' : 'text-2xl'}`}>LUMEN</span>
+    <span className={`font-display font-semibold tracking-[0.28em] ${small || vertical ? 'text-base' : 'text-2xl'}`}>LUMEN</span>
   </div>
 );

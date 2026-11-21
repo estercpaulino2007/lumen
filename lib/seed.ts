@@ -125,3 +125,12 @@ export async function seedDemo() {
   const samples = await writeSamples();
   return { ok: true, patients: 10, labs: 3, results: readDB().results.length, samples, password: DEMO_PASSWORD };
 }
+
+/** En modo demo, si el almacén está vacío (p. ej., Render reinició con disco efímero), carga la demo automáticamente una vez. */
+export async function ensureDemo() {
+  if (process.env.LUMEN_DEMO_MODE === 'false') return;
+  if (readDB().seededAt) return;
+  const g = globalThis as any;
+  if (!g.__lumenSeeding) g.__lumenSeeding = seedDemo().catch((e) => { console.error('[seed]', e); }).finally(() => { g.__lumenSeeding = null; });
+  await g.__lumenSeeding;
+}

@@ -40,20 +40,20 @@ export function Shell({ children }: { children: ReactNode }) {
   const pending = fu?.followUps?.filter((f: any) => f.status === 'open').length || 0;
   const logout = async () => { await apiFetch('/api/auth/logout', { method: 'POST' }); router.replace('/'); };
   const side = (
-    <nav aria-label="Navegación principal" className="relative flex h-full flex-col gap-1 overflow-hidden p-4">
-      <div className="mb-8 mt-3 flex justify-center"><Logo vertical /></div>
+    <nav aria-label="Navegación principal" className="relative flex h-full flex-col gap-0.5 overflow-y-auto p-3">
+      <div className="mb-5 mt-2 flex justify-center"><Logo vertical /></div>
       {nav.map((n) => { const active = path === n.href.split('?')[0]; return (
         <Link key={n.href} href={n.href} aria-current={active ? 'page' : undefined}
-          className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition ${active ? 'border border-vio/40 bg-gradient-to-r from-vio/30 to-indi/10 text-white shadow-glow' : 'border border-transparent text-mute hover:bg-white/5 hover:text-ink'}`}><n.icon size={18} />{n.label}</Link>); })}
-      <div className="mt-auto space-y-2 pt-4 text-xs">
+          className={`flex shrink-0 items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${active ? 'border border-vio/40 bg-gradient-to-r from-vio/30 to-indi/10 text-white shadow-glow' : 'border border-transparent text-mute hover:bg-white/5 hover:text-ink'}`}><n.icon size={18} />{n.label}</Link>); })}
+      <div className="mt-auto space-y-2 pb-14 pt-4 text-xs">
         <div className="flex flex-wrap gap-1"><Chip tone="warn">Datos ficticios</Chip><Chip tone="mute">KV: {data.system.kv}</Chip></div>
       </div>
-      <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-vio/30 blur-3xl" />
+      
     </nav>
   );
   return (
     <div className="flex min-h-screen">
-      <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 border-r border-white/10 bg-s1/60 backdrop-blur-xl lg:block">{side}</aside>
+      <aside className="no-print sticky top-0 hidden h-screen w-60 shrink-0 overflow-hidden border-r border-white/10 bg-s1/60 backdrop-blur-xl lg:block" style={{ background: 'radial-gradient(300px 260px at 0% 100%, rgba(139,92,246,.25), transparent 70%), rgba(14,14,38,.6)' }}>{side}</aside>
       {open && <div className="fixed inset-0 z-50 bg-black/60 lg:hidden" onClick={() => setOpen(false)}><aside className="h-full w-72 border-r border-white/10 bg-s1" onClick={(e) => e.stopPropagation()}>{side}</aside></div>}
       <div className="min-w-0 flex-1">
         <header className="no-print sticky top-0 z-30 flex items-center gap-3 border-b border-white/5 bg-bg/60 px-4 py-3 backdrop-blur-xl md:px-8">
@@ -71,7 +71,7 @@ export function Shell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <main id="main" className="mx-auto max-w-7xl p-4 pb-28 md:p-8">{children}</main>
+        <main id="main" className="mx-auto max-w-7xl p-4 pb-28 md:p-6">{children}</main>
       </div>
       <Luminy audience="staff" />
     </div>

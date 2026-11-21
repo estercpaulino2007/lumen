@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --fs: 15px; color-scheme: dark; }
+:root { --fs: 14px; color-scheme: dark; }
 * { scrollbar-width: thin; scrollbar-color: rgba(139,92,246,.45) transparent; }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
 *::-webkit-scrollbar-track { background: transparent; }
