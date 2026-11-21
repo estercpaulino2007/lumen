@@ -1,0 +1,199 @@
+// Schema objetivo para el piloto (PostgreSQL). El prototipo usa un almacén JSON con
+// exactamente estas entidades y campos (lib/store.ts) para poder correr sin binarios nativos.
+// Migración: `npx prisma migrate dev` con este archivo y un script que lea data/lumen.json.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Patient {
+  id String @id @default(cuid())
+  internalCode String @unique
+  fullName String
+  dateOfBirth DateTime?
+  curp String?
+  phone String?
+  email String?
+  municipality String?
+  digitalAccess String @default("completo")
+  consentFlags Json
+  channelOrder Json
+  identityVerificationLevel String @default("basic")
+  faceReferenceHash String?
+  faceReferenceVector Json?
+  visits Json
+  version Int @default(1)
+  fieldUpdatedAt Json
+  createdAt DateTime @default(now())
+  createdBy String
+  status String @default("active")
+  results LabResult[]
+  accessLogs SecureAccessLog[]
+}
+
+model LabResult {
+  id String @id @default(cuid())
+  patientId String?
+  patient Patient? @relation(fields: [patientId], references: [id])
+  labId String
+  labName String
+  examType String @default("PAPANICOLAOU")
+  collectedAt DateTime?
+  receivedAt DateTime @default(now())
+  originalFileName String
+  storagePath String
+  fileHash String @unique
+  ocrStatus String @default("pending")
+  ocrExtractedJson Json?
+  ocrConfidence Float?
+  qualityIssues Json?
+  associationStatus String @default("pending")
+  associationScore Float?
+  associationExplanation Json?
+  confirmedBy String?
+  reviewStatus String @default("pending")
+  clinicalStatus String @default("pending")
+  deliveryStatus String @default("not_sent")
+  followUpRequired Boolean @default(false)
+  accessCount Int @default(0)
+  downloadCount Int @default(0)
+  timeline Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviewTasks ReviewTask[]
+  authorizations ClinicalAuthorization[]
+  accessLogs SecureAccessLog[]
+}
+
+model ReviewTask {
+  id         String    @id @default(cuid())
+  resultId   String
+  result     LabResult @relation(fields: [resultId], references: [id])
+  assignedTo String?
+  status     String    @default("pending")
+  priority   String    @default("normal")
+  issueType  String?
+  notes      String?
+  resolution String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+model ClinicalAuthorization {
+  id           String    @id @default(cuid())
+  resultId     String
+  result       LabResult @relation(fields: [resultId], references: [id])
+  authorizedBy String
+  decision     String
+  reason       String
+  authorizedAt DateTime  @default(now())
+}
+
+model SecureAccess {
+  id                       String    @id @default(cuid())
+  resultId                 String?
+  patientId                String
+  salt                     String
+  otpHash                  String
+  expiresAt                DateTime
+  usedAt                   DateTime?
+  attempts                 Int       @default(0)
+  cameraVerification       Boolean   @default(false)
+  cameraVerificationScore  Float?
+  cameraVerificationMethod String?
+  status                   String    @default("pending")
+  createdAt                DateTime  @default(now())
+}
+
+model SecureAccessLog {
+  id                    String     @id @default(cuid())
+  resultId              String?
+  result                LabResult? @relation(fields: [resultId], references: [id])
+  patientId             String?
+  patient               Patient?   @relation(fields: [patientId], references: [id])
+  action                String
+  method                String
+  success               Boolean
+  ipAddressHash         String?
+  userAgentHash         String?
+  deviceFingerprintHash String?
+  metadata              Json?
+  createdAt             DateTime   @default(now())
+}
+
+/// Append-only: en PostgreSQL se revoca UPDATE/DELETE al rol de la aplicación y cada fila se encadena por hash.
+model AuditEvent {
+  seq           Int      @id @default(autoincrement())
+  id            String   @unique
+  actorRole     String
+  actorId       String
+  action        String
+  entityType    String
+  entityId      String
+  before        Json?
+  after         Json?
+  reason        String?
+  ipAddressHash String?
+  userAgentHash String?
+  prev          String
+  hash          String   @unique
+  createdAt     DateTime @default(now())
+}
+
+model OfflineSyncQueue {
+  id              String    @id @default(cuid())
+  opId            String    @unique
+  operationType   String
+  payload         Json
+  clientUpdatedAt DateTime
+  serverUpdatedAt DateTime?
+  status          String    @default("pending")
+  conflictData    Json?
+  attempts        Int       @default(0)
+  createdAt       DateTime  @default(now())
+}
+
+model FollowUpTask {
+  id              String    @id @default(cuid())
+  patientId       String
+  resultId        String?
+  reason          String
+  priority        String    @default("normal")
+  dueAt           DateTime?
+  status          String    @default("open")
+  assignedTo      String?
+  contactAttempts Int       @default(0)
+  lastContactAt   DateTime?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SignedLink {
+  jti       String    @id
+  resultId  String
+  patientId String
+  sessionId String
+  mode      String
+  expiresAt DateTime
+  maxUses   Int
+  uses      Int       @default(0)
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Notification {
+  id        String   @id
+  kind      String
+  patientId String
+  resultId  String?
+  channel   String?
+  status    String
+  attempts  Json
+  dlpHits   Json?
+  createdAt DateTime @default(now())
+}

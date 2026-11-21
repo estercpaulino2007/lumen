@@ -1,0 +1,27 @@
+# Despliegue en Render (Blueprint): New → Blueprint → elegir este repositorio.
+services:
+  - type: web
+    name: lumen
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:render
+    healthCheckPath: /api/auth/me
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: LUMEN_DEMO_MODE
+        value: "true"
+      - key: LUMEN_MASTER_KEY
+        generateValue: true
+      # IA de Luminy (opcional). Define UNA de estas opciones en el panel de Render:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LUMINY_API_KEY
+        sync: false
+      - key: LUMINY_BASE_URL
+        sync: false
+      - key: LUMINY_MODEL
+        sync: false

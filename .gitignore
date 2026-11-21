@@ -1,0 +1,8 @@
+node_modules
+.next
+data/*.json
+data/*.jsonl
+storage/results/*
+!storage/results/.gitkeep
+.env
+.env.local
