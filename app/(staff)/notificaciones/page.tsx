@@ -10,8 +10,9 @@ const CH = [['sms', 'SMS', MessageSquare], ['email', 'Correo', Mail], ['whatsapp
 export default function Central() {
   const { data, mutate } = useSWR('/api/notifications', fetcher, { refreshInterval: 2500 });
   const [text, setText] = useState('Hola María, tu resultado salió anormal, acude pronto.');
-  const [dlp, setDlp] = useState<any>(null);
-  const toggle = async (k: string, v: boolean) => { await apiFetch('/api/settings', { body: { channels: { [k]: v } } }); mutate(); };
+  const [dlp, setDlp] = useState<any>(null), [chErr, setChErr] = useState('');
+  const me = useSWR('/api/auth/me', fetcher).data; const canToggle = ['captura', 'admin'].includes(me?.user?.role);
+  const toggle = async (k: string, v: boolean) => { setChErr(''); try { await apiFetch('/api/settings', { body: { channels: { [k]: v } } }); mutate(); } catch (e: any) { setChErr(e.message); } };
   const test = async () => setDlp(await apiFetch('/api/notifications/dlp', { body: { text } }));
   return (
     <>
@@ -19,10 +20,12 @@ export default function Central() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Section title="Canales y conmutación automática" sub="Apaga un canal para simular un bloqueo: la entrega continúa por el siguiente.">
           <div className="grid gap-2 sm:grid-cols-2">{CH.map(([k, l, I]) => { const on = data?.channels?.[k]; return (
-            <button key={k} onClick={() => toggle(k, !on)} aria-pressed={!!on} className={`flex items-center gap-3 rounded-xl2 border p-4 text-left ${on ? 'border-safe/40 bg-safe/5' : 'border-err/40 bg-err/5'}`}>
+            <button key={k} onClick={() => toggle(k, !on)} disabled={!canToggle} title={canToggle ? '' : 'Solo Coordinación o Administración cambia los canales'} aria-pressed={!!on} className={`flex items-center gap-3 rounded-xl2 border p-4 text-left ${on ? 'border-safe/40 bg-safe/5' : 'border-err/40 bg-err/5'}`}>
               <I size={18} className={on ? 'text-safe' : 'text-err'} /><div className="flex-1"><div className="text-sm font-semibold">{l}</div><div className="text-xs text-mute">{on ? 'Operando' : 'Caído / bloqueado (simulado)'}</div></div><Chip tone={on ? 'safe' : 'err'}>{on ? 'ON' : 'OFF'}</Chip>
             </button>); })}</div>
-          <div className="mt-3"><Note>Orden por paciente: SMS → correo → WhatsApp (solo con consentimiento) → atención asistida. Hoy, con WhatsApp bloqueado, las entregas siguen funcionando.</Note></div>
+          {!canToggle && <div className="mt-3"><Note tone="warn">Solo Coordinación (Captura) o Administración puede encender o apagar canales.</Note></div>}
+          {chErr && <div className="mt-3"><Note tone="err">{chErr}</Note></div>}
+          <div className="mt-3"><Note>Cada paciente tiene su canal preferido (varias prefieren WhatsApp, con consentimiento). Si un canal cae, LUMEN conmuta al siguiente → atención asistida. Enciende WhatsApp y envía un recordatorio desde un resultado autorizado para verlo salir por WhatsApp.</Note></div>
         </Section>
         <Section title="Guardia clínica de mensajes (DLP)" sub="Prueba escribir un aviso con información clínica.">
           <textarea className="input min-h-[90px]" value={text} onChange={(e) => setText(e.target.value)} aria-label="Texto a revisar" />

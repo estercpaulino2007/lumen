@@ -22,7 +22,7 @@ export default function Lab() {
   const upload = async (f?: File) => {
     if (!f) return;
     setBusy(true); setMsg(null);
-    try { const fd = new FormData(); fd.append('file', f); const r = await apiFetch('/api/results/upload', { form: fd }); setMsg({ ok: true, text: `Recibido. Huella SHA-256 calculada y lectura en proceso (${r.id}).` }); mutate(); }
+    try { const fd = new FormData(); fd.append('file', f); const r = await apiFetch('/api/results/upload', { form: fd }); setMsg({ ok: true, text: 'Recibido y cifrado. Leyendo identificadores…' }); mutate(); setTimeout(async () => { try { const d = await apiFetch(`/api/results/${r.id}`); const x = d.result; setMsg({ ok: x.quality !== 'mala', text: `Documento leído: ${x.extracted?.nombre || 'nombre no legible'}${x.extracted?.fechaToma ? ' · toma ' + x.extracted.fechaToma.split('-').reverse().join('/') : ''} · calidad ${x.quality || '—'}${x.qualityIssues?.length ? ' · ' + x.qualityIssues.map((i: any) => i.msg).join(' ') : ''}. Quedó en revisión de EIRA.` }); mutate(); } catch {} }, 2500); }
     catch (e: any) { setMsg({ ok: false, text: e.message }); } finally { setBusy(false); if (input.current) input.current.value = ''; }
   };
   return (
@@ -45,8 +45,8 @@ export default function Lab() {
       </div>
       <div className="mt-6"><Section title="Mis envíos" sub="Solo ves los documentos de tu laboratorio.">
         {!data ? null : !data.results.length ? <Empty>Sin envíos todavía.</Empty> : (
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-mute"><tr><th className="py-2">Archivo</th><th>Recibido</th><th>Lectura</th><th>Estado</th><th>Corrección</th></tr></thead>
-            <tbody>{data.results.map((r: any) => <tr key={r.id} className="border-t border-line"><td className="py-2.5"><Link className="hover:text-sky" href={`/resultados/${r.id}`}>{r.originalFileName}</Link></td><td>{fmt(r.receivedAt)}</td><td><Status s={r.ocrStatus} /></td><td>{r.associationStatus === 'correction_requested' ? <Status s="correction_requested" /> : r.stage === 'delivery' ? <span className="inline-flex items-center gap-1 text-safe"><CheckCircle2 size={14} />Procesado</span> : <Status s={r.stage} />}</td><td className="max-w-xs text-warn">{r.correctionNote || ''}</td></tr>)}</tbody></table></div>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="text-left text-mute"><tr><th className="py-2">Archivo</th><th>Paciente (según el PDF)</th><th>Toma</th><th>Recibido</th><th>Lectura</th><th>Calidad</th><th>Estado</th><th>Corrección / avisos</th></tr></thead>
+            <tbody>{data.results.map((r: any) => <tr key={r.id} className="border-t border-line"><td className="py-2.5"><Link className="hover:text-sky" href={`/resultados/${r.id}`}>{r.originalFileName}</Link></td><td>{r.extracted?.nombre || <span className="text-mute">no legible</span>}</td><td>{r.extracted?.fechaToma ? r.extracted.fechaToma.split('-').reverse().join('/') : '—'}</td><td>{fmt(r.receivedAt)}</td><td><Status s={r.ocrStatus} /></td><td>{r.quality ? <Status s={r.quality} /> : '—'}</td><td>{r.associationStatus === 'correction_requested' ? <Status s="correction_requested" /> : r.stage === 'delivery' ? <span className="inline-flex items-center gap-1 text-safe"><CheckCircle2 size={14} />Procesado</span> : <Status s={r.stage} />}</td><td className="max-w-xs text-xs"><span className="text-warn">{r.correctionNote || ''}</span>{!r.correctionNote && r.qualityIssues?.length ? <span className="text-mute">{r.qualityIssues[0].msg}</span> : null}</td></tr>)}</tbody></table></div>
         )}
       </Section></div>
     </>

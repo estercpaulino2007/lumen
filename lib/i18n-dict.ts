@@ -1,5 +1,15 @@
 // Diccionario ES → EN. La interfaz está escrita en español (público principal: México) y se traduce en el navegador.
 export const EXACT: Record<string, string> = {
+  'Paciente (según el PDF)': 'Patient (from the PDF)', 'Toma': 'Collected', 'Calidad': 'Quality', 'Corrección / avisos': 'Correction / warnings', 'no legible': 'not readable', 'Recibido y cifrado. Leyendo identificadores…': 'Received and encrypted. Reading identifiers…',
+  'Solo Coordinación (Captura) o Administración puede encender o apagar canales.': 'Only Coordination (Intake) or Administration can switch channels on or off.',
+  'Cada paciente tiene su canal preferido (varias prefieren WhatsApp, con consentimiento). Si un canal cae, LUMEN conmuta al siguiente → atención asistida. Enciende WhatsApp y envía un recordatorio desde un resultado autorizado para verlo salir por WhatsApp.': 'Each patient has a preferred channel (several prefer WhatsApp, with consent). If a channel goes down, LUMEN fails over to the next → assisted service. Turn WhatsApp on and send a reminder from an authorized result to see it go out via WhatsApp.',
+  'Mis exámenes': 'My tests', 'Avisos': 'Notices', 'Accesos': 'Access log', 'Contacto': 'Contact', 'Muestra tomada': 'Sample taken', 'En laboratorio': 'At the lab', 'Revisión de EIRA': 'EIRA review', 'Revisión profesional': 'Professional review', 'Disponible': 'Available', 'En proceso': 'In progress',
+  'Te avisaremos cuando esté disponible. El aviso nunca incluye información médica.': "We'll let you know when it's available. The notice never includes medical information.", 'Aún no tienes avisos.': "You don't have notices yet.",
+  'Transparencia: aquí ves cada vez que alguien abrió tus documentos.': 'Transparency: here you see every time someone opened your documents.', 'Nadie ha abierto tus documentos todavía.': 'Nobody has opened your documents yet.', 'Tú': 'You',
+  'Personal administrativo de EIRA': 'EIRA administrative staff', 'Profesional de salud de EIRA': 'EIRA health professional', 'Administración de EIRA': 'EIRA administration', 'Personal autorizado': 'Authorized staff',
+  '¿Por dónde prefieres recibir avisos? Nunca incluyen información médica.': 'How would you like to receive notices? They never include medical information.', 'Preferido': 'Preferred', 'Acepto': 'I agree', 'Guardar preferencias': 'Save preferences', 'Preferencias guardadas.': 'Preferences saved.',
+  '¿Tienes dudas sobre tu documento?': 'Questions about your document?', 'Una profesional de salud de EIRA puede acompañarte.': 'An EIRA health professional can support you.', 'Solicitud enviada': 'Request sent', 'Quiero que me contacten': 'Please contact me', 'Listo: una profesional de EIRA te contactará.': 'Done: an EIRA professional will contact you.',
+  'Tienes 1 documento disponible': 'You have 1 document available', 'Identidad: código de seguridad': 'Identity: security code', 'Identidad: código asistido': 'Identity: assisted code',
   'Mira a la cámara: parpadea dos veces o gira suavemente la cabeza.': 'Look at the camera: blink twice or gently turn your head.', 'Perdimos tu rostro: mantente dentro del óvalo.': 'We lost your face: stay inside the oval.', 'Buscando tu rostro… acércate y busca buena luz de frente.': 'Looking for your face… move closer and face the light.',
   'Agregar usuario': 'Add user', 'Se genera una contraseña temporal que se muestra una sola vez. Queda en la auditoría.': 'A temporary password is generated and shown only once. It is audited.', 'Crear': 'Create', 'Arrastra para girar': 'Drag to rotate',
   'Base de conocimiento de LUMEN': 'LUMEN knowledge base',
@@ -150,6 +160,8 @@ export const EXACT: Record<string, string> = {
 
 // Fragmentos para textos dinámicos (se aplican solo si no hubo coincidencia exacta). Más largos primero.
 export const FRAG: [string, string][] = [
+  ['Documento leído:', 'Document read:'], ['nombre no legible', 'name not readable'], ['· toma', '· collected'], ['· calidad', '· quality'], ['Quedó en revisión de EIRA.', 'Now in EIRA review.'], ['calidad buena', 'quality good'],
+  ['Toma:', 'Collected:'], ['Descarga', 'Download'], ['Consulta', 'View'],
   ['Rostro detectado', 'Face detected'], ['Parpadeos:', 'Blinks:'], ['Parpadea dos veces o gira un poco la cabeza.', 'Blink twice or turn your head slightly.'],
   ['creado. Contraseña temporal (se muestra una sola vez):', 'created. Temporary password (shown only once):'], ['Usuario', 'User'],
   ['Modo demo: ese contacto no está en los datos de demostración. Usa 55 5123 1234 o anakaren.ruiz@ejemplo.test (o vuelve a cargar la demo).', 'Demo mode: that contact is not in the demo data. Use 55 5123 1234 or anakaren.ruiz@ejemplo.test (or reload the demo).'],

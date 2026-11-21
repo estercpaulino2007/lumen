@@ -8,9 +8,33 @@ Prototipo para el **Reto 4 de EIRA Movimiento Rosa A.C.** · Nerdearla Vibeathon
 
 🇺🇸 [English summary](#-english-summary) · 🇲🇽 Documento principal en español
 
-**Repositorio:** https://github.com/estercpaulino2007/lumen
+**Demo en vivo:** https://lumen-3zsd.onrender.com · **Repositorio:** https://github.com/estercpaulino2007/lumen
 
 ---
+
+## 📸 Recorrido visual (demo con datos ficticios)
+
+| | |
+|---|---|
+| ![Portada y acceso por papel](docs/img/01-login.jpg) **1. Portada** — acceso por papel, escultura 3D, ES/EN | ![Laboratorio](docs/img/02-laboratorio.jpg) **2. Laboratorio** — sube el PDF y ve qué se leyó (paciente, toma, calidad) |
+| ![Panel](docs/img/03-panel.jpg) **3. Centro de Entrega** — indicadores, embudo, municipios, actividad | ![Asociación](docs/img/04-asociacion.jpg) **4. Asociación** — puntaje explicable 40/25/15/10/10 y homónimas |
+| ![Autorización](docs/img/05-autorizacion.jpg) **5. Autorización clínica** — otra persona, motivo y contraseña | ![Notificaciones](docs/img/06-notificaciones.jpg) **6. Notificaciones** — failover de canales y guardia clínica |
+| ![Luminy](docs/img/07-luminy.jpg) **7. Luminy** — asistente IA con límite clínico | ![Auditoría](docs/img/08-auditoria.jpg) **8. Auditoría** — bitácora encadenada |
+
+| Portal de la paciente (móvil) | | |
+|---|---|---|
+| ![Código](docs/img/09-portal-codigo.jpg) **9. Código** (en demo se muestra en pantalla) | ![Cámara](docs/img/10-portal-camara.jpg) **10. Verificación de presencia** opcional | ![Portal](docs/img/11-portal-paciente.jpg) **11. Mis exámenes, avisos, accesos y contacto** |
+
+### Guion rápido para probarla (3 minutos)
+1. **Laboratorio** (`lab@lumen.demo`): *Cargar resultados* → descarga `01-maria-lopez-segunda-visita.pdf` de la misma pantalla y súbelo.
+2. **Captura** (`captura@lumen.demo`): *Resultados* → abre el documento → puntaje 93 % → *Confirmar asociación*.
+3. **Profesional de salud** (`clinica@lumen.demo`): *Autorización clínica* → motivo + contraseña → *Autorizar entrega*.
+4. **Notificaciones**: el aviso salió por SMS porque WhatsApp está caído; escribe "tu resultado salió anormal" en la guardia → *Bloqueado*.
+5. **Paciente**: *Soy paciente* → María López → *Usar código* → cámara (opcional) → *Ver*. Revisa *Mis exámenes*, *Avisos*, *Accesos* y *Contacto*.
+6. **Luminy**: "¿Qué hay pendiente hoy?", "¿cómo agrego un usuario?" y "¿el resultado de María es anormal?".
+
+Contraseña de todos los papeles: `Lumen-2026!`
+
 
 ## 1. Problema
 
@@ -58,6 +82,7 @@ Laboratorio sube PDF → huella SHA-256 + cifrado → lectura de identificadores
 | ✨ | **Luminy, asistente de IA** (avatar 3D: orbe + technotron, se gira con el mouse) | Base de conocimiento de todo el app en ES/EN ("¿cómo agrego un usuario?", "how do I export a report?"), resúmenes con datos en vivo, explicación de puntajes, canales y bitácora. Se niega a interpretar resultados y le ofrece a la paciente "quiero que una profesional me contacte". Con `ANTHROPIC_API_KEY`, responde preguntas generales y **busca en la web**; recibe solo datos agregados y su salida pasa por la guardia DLP. |
 | 🌐 | **Español / English** | Selector ES/EN en todas las pantallas (login, panel y portal). Español por defecto para el público de EIRA; inglés para aliados y jurado. |
 | 🌌 | **Interfaz con 3D en tiempo real** (three.js / React Three Fiber) | Escultura en banner y login, lazo infinito en el portal; se pueden girar arrastrando. Modelos comprimidos de 6,5 MB a <600 KB; respaldo en CSS si no hay WebGL o con movimiento reducido. |
+| 🙋 | **Portal completo para la paciente** | Estado de cada examen (muestra tomada → laboratorio → revisión EIRA → revisión profesional → disponible), avisos recibidos, **quién abrió su documento** (transparencia), canal preferido y botón para que una profesional la contacte. Nunca muestra contenido clínico. |
 | 👥 | **Gestión de usuarios** | La Administración crea cuentas (contraseña temporal mostrada una sola vez), desactiva usuarios y revoca sesiones y enlaces. |
 | 📈 | **Indicadores propios de EIRA** | Embudo de entrega, municipios atendidos, avisos rescatados por failover, intentos con WhatsApp bloqueado y mensajes frenados por la guardia; saludo y fila según el papel. |
 | 📴 | **Brigada offline** con fila IndexedDB y conflictos por campo | Nada se sobrescribe en silencio; la resolución queda auditada. |
@@ -112,7 +137,7 @@ Producción local: `npm run build && npm start`. Pruebas: `npm test` (14 pruebas
 
 ### 🚀 Demo en vivo en Render
 
-**URL de la demo:** `https://<tu-servicio>.onrender.com` *(reemplazar por la URL del servicio)*
+**URL de la demo:** https://lumen-3zsd.onrender.com
 
 **Cómo se desplegó (Blueprint, sin configurar nada a mano):**
 1. En https://dashboard.render.com → **Blueprints → New Blueprint Instance** → repositorio `estercpaulino2007/lumen`, rama `main`.

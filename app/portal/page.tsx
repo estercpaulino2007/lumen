@@ -8,6 +8,7 @@ import { CameraIntro, PresenceCheck } from '@/components/Camera';
 import { HeroSculpture } from '@/components/three';
 import { Luminy } from '@/components/Luminy';
 import { LangToggle } from '@/components/I18n';
+import { PatientHub } from '@/components/PatientHub';
 
 type Step = 'contact' | 'otp' | 'assisted' | 'camera-intro' | 'camera' | 'camera-failed' | 'docs';
 const SPEECH: Record<string, string> = {
@@ -90,14 +91,15 @@ export default function Portal() {
           <div className="grid gap-2 sm:grid-cols-2"><button className="btn-primary" onClick={loadDocs}>Continuar con mi código</button><button className="btn-ghost" onClick={() => setStep('camera')}>Intentar de nuevo</button></div>
         </>)}
         {step === 'docs' && docs && (<>
-          <div className="flex items-start justify-between gap-2"><div><h1 className="text-2xl font-semibold">Hola, {docs.firstName}</h1><p className="text-mute">Tienes {docs.documents.length} documento{docs.documents.length === 1 ? '' : 's'} disponible{docs.documents.length === 1 ? '' : 's'}</p></div><button className="btn-ghost px-3" onClick={logout} aria-label="Salir"><LogOut size={16} /></button></div>
-          <div className="flex flex-wrap gap-2"><Chip tone="safe">Identidad: {docs.method === 'assisted' ? 'código asistido' : 'código de seguridad'}</Chip>{(cameraOk || docs.cameraVerified) && <Chip tone="sky">Presencia verificada</Chip>}</div>
+          <div className="flex items-start justify-between gap-2"><div><h1 className="text-2xl font-semibold">Hola, {docs.firstName}</h1><p className="text-mute">{docs.documents.length === 1 ? 'Tienes 1 documento disponible' : `Tienes ${docs.documents.length} documentos disponibles`}</p></div><button className="btn-ghost px-3" onClick={logout} aria-label="Salir"><LogOut size={16} /></button></div>
+          <div className="flex flex-wrap gap-2"><Chip tone="safe">{docs.method === 'assisted' ? 'Identidad: código asistido' : 'Identidad: código de seguridad'}</Chip>{(cameraOk || docs.cameraVerified) && <Chip tone="sky">Presencia verificada</Chip>}</div>
           {docs.documents.map((d: any) => (
             <div key={d.id} className="card-2 space-y-3 p-4">
-              <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-vio/20"><FileText className="text-lila" /></span><div><div className="font-semibold">Papanicolaou</div><div className="text-sm text-mute">Colecta: {dmy(d.collectedAt)} · Laboratorio: {d.labName}</div></div></div>
+              <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-vio/20"><FileText className="text-lila" /></span><div><div className="font-semibold">Papanicolaou</div><div className="text-sm text-mute">{`Colecta: ${dmy(d.collectedAt)} · Laboratorio: ${d.labName}`}</div></div></div>
               <div className="grid grid-cols-2 gap-2"><button className="btn-primary" disabled={busy} onClick={() => open(d.id, 'view')}><Eye size={16} />Ver</button><button className="btn-ghost" disabled={busy} onClick={() => open(d.id, 'download')}><Download size={16} />Descargar</button></div>
               {links[d.id] && <p className="text-xs text-mute">Enlace seguro de un solo propósito: vence {new Date(links[d.id].expiresAt).toLocaleTimeString('es-MX', { timeStyle: 'short' })} · máx. {links[d.id].maxUses} usos · solo funciona en este dispositivo.</p>}
             </div>))}
+          <PatientHub />
           <Note>Este portal no interpreta resultados. Si tienes dudas sobre tu documento, EIRA puede acompañarte con una profesional de salud.</Note>
         </>)}
         {err && <p role="alert" className="rounded-xl border border-err/40 bg-err/10 p-3 text-sm text-err">{err}</p>}
