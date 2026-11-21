@@ -17,10 +17,10 @@ export const POST = api(async (req) => {
     return json({ text: 'Listo. Pedí a EIRA que una profesional de salud te contacte por tu canal preferido. No compartimos tu pregunta con nadie más.', source: 'Seguimiento' });
   }
   const role = s?.role || 'paciente';
-  const rule = luminy(b.message || '', { role, userId: s?.user?.id, patientId: s?.patient?.id, resultId: b.resultId });
+  const rule = luminy(b.message || '', { role, userId: s?.user?.id, patientId: s?.patient?.id, resultId: b.resultId, lang: b.lang });
   // Las respuestas con datos exactos (puntajes, bitácora) o con límite clínico NO pasan por la IA generativa.
   if (rule.guardrail || rule.source.startsWith('Resultado') || rule.source.startsWith('Verificación')) return json(rule);
-  const ai = await askLLM(b.message || '', role, rule.text, b.lang);
+  const ai = await askLLM(b.message || '', role, rule.fallback ? '(sin respuesta en la base de conocimiento; responde con tu conocimiento general o búsqueda web si es necesario)' : rule.text, b.lang);
   if (!ai) return json(rule);
   audit({ actorRole: role, actorId: s?.user?.id || s?.patient?.id || 'anonimo', action: 'luminy.respuesta_ia', entityType: 'Assistant', entityId: 'luminy', after: { model: ai.model } });
   return json({ ...rule, text: ai.text, source: `Luminy IA · ${ai.model} · datos agregados + guardia clínica` });

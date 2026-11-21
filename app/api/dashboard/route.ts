@@ -54,6 +54,20 @@ export const GET = api(async (req) => {
   const activity = readAudit().filter((e) => LABEL[e.action]).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5)
     .map((e) => ({ action: e.action, title: LABEL[e.action][0], tag: LABEL[e.action][1], who: who(e), score: e.after?.score ?? null, at: e.createdAt, href: e.entityType === 'LabResult' ? `/resultados/${e.entityId}` : null }));
   const spark = (k: 'recibidos' | 'autorizados' | 'consultados') => charts.perDay.map((d: any) => d[k]);
+  const N = db.notifications.filter((n) => n.kind !== 'otp');
+  const funnel = [
+    { etapa: 'Recibidos', n: R.length }, { etapa: 'Leídos', n: R.filter((r) => r.ocrStatus === 'done').length },
+    { etapa: 'Asociación confirmada', n: R.filter((r) => r.reviewStatus === 'approved').length }, { etapa: 'Autorizados', n: R.filter((r) => r.clinicalStatus === 'authorized').length },
+    { etapa: 'Avisados', n: R.filter((r) => r.timeline?.notified || r.deliveryStatus === 'assisted_pending').length }, { etapa: 'Consultados', n: R.filter((r) => r.timeline?.accessed).length },
+  ];
+  const muni: Record<string, { atendidas: number; pendientes: number }> = {};
+  for (const r of R) { const p = db.patients.find((x) => x.id === r.patientId); const k = p?.municipality || 'Sin asociar'; muni[k] ||= { atendidas: 0, pendientes: 0 }; if (r.timeline?.accessed) muni[k].atendidas++; else muni[k].pendientes++; }
+  const byMunicipality = Object.entries(muni).map(([m, v]) => ({ municipio: m.replace(' de Morelos', ''), ...v })).sort((a, b) => b.atendidas + b.pendientes - a.atendidas - a.pendientes);
+  const delivery = {
+    failoverRescues: N.filter((n) => n.attempts?.some((a: any) => !a.ok) && n.status === 'entregado').length,
+    whatsappBlocked: N.filter((n) => n.attempts?.some((a: any) => a.channel === 'whatsapp' && !a.ok)).length,
+    dlpBlocked: db.notifications.filter((n) => n.status === 'bloqueado_dlp').length,
+  };
   const chain = verifyChain();
-  return json({ metrics, charts, activity, spark: { recibidos: spark('recibidos'), autorizados: spark('autorizados'), consultados: spark('consultados') }, system: { kv: kv.kind, queue: queueStats(), auditOk: chain.ok, auditCount: chain.count, channels: db.settings.channels } });
+  return json({ metrics, charts: { ...charts, funnel, byMunicipality }, delivery, activity, spark: { recibidos: spark('recibidos'), autorizados: spark('autorizados'), consultados: spark('consultados') }, system: { kv: kv.kind, queue: queueStats(), auditOk: chain.ok, auditCount: chain.count, channels: db.settings.channels } });
 });

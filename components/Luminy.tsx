@@ -32,7 +32,7 @@ export function Luminy({ audience = 'staff' }: { audience?: 'staff' | 'patient' 
       {open && (
         <section role="dialog" aria-label="Luminy" className="no-print fade-in fixed bottom-20 right-4 z-50 flex h-[min(640px,80vh)] w-[min(420px,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl3 border border-vio/30 bg-s1/95 shadow-soft backdrop-blur-2xl">
           <header className="relative flex items-center gap-3 border-b border-white/10 p-3" style={{ background: 'radial-gradient(400px 160px at 20% 0%, rgba(139,92,246,.35), transparent)' }}>
-            <LuminyAvatar className="h-20 w-20 shrink-0" active={busy} />
+            <LuminyAvatar className="h-20 w-20 shrink-0 cursor-grab" active={busy} interactive />
             <div className="flex-1"><div className="font-display text-lg font-semibold">Luminy</div><div className="text-xs text-mute">{mode || 'Asistente de LUMEN'} · sin acceso a contenido clínico · no diagnostica</div></div>
             <button onClick={() => setOpen(false)} className="rounded-full p-2 hover:bg-white/10" aria-label="Cerrar"><X size={18} /></button>
           </header>
@@ -50,7 +50,7 @@ export function Luminy({ audience = 'staff' }: { audience?: 'staff' | 'patient' 
             <div ref={end} />
           </div>
           <div className="border-t border-white/10 p-3">
-            <div className="mb-2 flex gap-1.5 overflow-x-auto pb-1">{chips.map((c) => <button key={c} onClick={() => ask(c)} className="chip shrink-0 border-white/10 bg-white/[0.04] text-mute hover:border-vio/50 hover:text-ink">{c}</button>)}</div>
+            <div className="no-scrollbar mb-2 flex gap-1.5 overflow-x-auto pb-1">{chips.map((c) => <button key={c} onClick={() => ask(c)} className="chip shrink-0 border-white/10 bg-white/[0.04] text-mute hover:border-vio/50 hover:text-ink">{c}</button>)}</div>
             <form onSubmit={(e) => { e.preventDefault(); ask(); }} className="flex gap-2"><input className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Pregúntale a Luminy…" aria-label="Mensaje para Luminy" /><button className="btn-primary px-3" disabled={busy} aria-label="Enviar"><Send size={16} /></button></form>
           </div>
         </section>

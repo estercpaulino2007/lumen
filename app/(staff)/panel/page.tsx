@@ -42,6 +42,8 @@ export default function Panel() {
             <h1 className="text-3xl font-semibold md:text-5xl">{fem}, <span className="glow-text">{first}</span></h1>
             <p className="mt-3 max-w-md text-lg text-mute">Resultados con claridad,<br />seguridad y acompañamiento.</p>
             <div className="mt-4 h-0.5 w-24 rounded-full bg-gradient-to-r from-vio to-transparent" />
+            <p className="mt-4 text-sm">{me?.user?.role === 'clinico' ? <>Tienes <b className="text-lila">{m.awaitingAuth}</b> resultados esperando tu autorización.</> : me?.user?.role === 'admin' ? <>Bitácora con <b className="text-lila">{data.system.auditCount}</b> eventos verificados y <b className="text-lila">{m.openFollowUps}</b> seguimientos abiertos.</> : <>Hoy tienes <b className="text-lila">{m.awaitingReview}</b> documentos por revisar y <b className="text-lila">{m.openFollowUps}</b> pacientes por contactar.</>}</p>
+            {me?.user?.role === 'clinico' && m.awaitingAuth > 0 && <Link href="/resultados?stage=clinical" className="btn-primary mt-3">Ir a mi fila<ArrowRight size={16} /></Link>}
             <div className="mt-5 flex flex-wrap gap-2">{data.system.auditOk ? <Chip tone="safe" icon={<ShieldCheck size={12} />}>Bitácora íntegra · {data.system.auditCount} eventos</Chip> : <Chip tone="err" icon={<ShieldAlert size={12} />}>Bitácora alterada</Chip>}<Chip tone="sky" icon={<MessageCircleOff size={12} />}>0 entregas dependen de WhatsApp</Chip></div>
           </div>
           <HeroSculpture model="torus" className="h-56 md:h-72" size={3.4} />
@@ -99,9 +101,22 @@ export default function Panel() {
         <Section title="Pendientes por laboratorio" sub="Incluye fallos de lectura del documento">
           <div className="h-64"><ResponsiveContainer><BarChart data={c.byLab}><CartesianGrid stroke="#262654" vertical={false} /><XAxis dataKey="lab" {...axis} interval={0} tick={{ fontSize: 10, fill: '#94A3B8' }} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Legend /><Bar isAnimationActive={false} dataKey="pendientes" fill="#F59E0B" radius={[6, 6, 0, 0]} /><Bar isAnimationActive={false} dataKey="entregados" fill="#2DD4BF" radius={[6, 6, 0, 0]} /><Bar isAnimationActive={false} dataKey="fallosOCR" name="fallos OCR" fill="#F87171" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer></div>
         </Section>
+        <Section title="Embudo de entrega" sub="Dónde se quedan los resultados en el camino a la paciente">
+          <div className="space-y-2.5">{c.funnel.map((f: any, i: number) => { const pct = c.funnel[0].n ? Math.round((f.n / c.funnel[0].n) * 100) : 0; return (
+            <div key={f.etapa}><div className="mb-1 flex justify-between text-xs"><span className="text-mute">{f.etapa}</span><span><b>{f.n}</b> <span className="text-mute">· {pct}%</span></span></div>
+              <div className="h-3 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full" style={{ width: pct + '%', background: `linear-gradient(90deg, #8B5CF6, ${['#8B5CF6', '#7C6CF6', '#6D7CF8', '#38BDF8', '#2DD4BF', '#2DD4BF'][i]})` }} /></div></div>); })}</div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="card-2 p-3"><div className="font-display text-2xl text-safe">{data.delivery.failoverRescues}</div><div className="text-mute">avisos rescatados por failover</div></div>
+            <div className="card-2 p-3"><div className="font-display text-2xl text-warn">{data.delivery.whatsappBlocked}</div><div className="text-mute">intentos con WhatsApp bloqueado</div></div>
+            <div className="card-2 p-3"><div className="font-display text-2xl text-err">{data.delivery.dlpBlocked}</div><div className="text-mute">mensajes frenados por la guardia</div></div>
+          </div>
+        </Section>
+        <Section title="Municipios atendidos" sub="Resultados consultados vs. pendientes por comunidad">
+          <div className="h-64"><ResponsiveContainer><BarChart data={c.byMunicipality} layout="vertical" margin={{ left: 20 }}><CartesianGrid stroke="#262654" horizontal={false} /><XAxis type="number" allowDecimals={false} {...axis} /><YAxis type="category" dataKey="municipio" width={120} {...axis} /><Tooltip {...tip} /><Legend /><Bar isAnimationActive={false} dataKey="atendidas" stackId="a" fill="#2DD4BF" radius={[0, 0, 0, 0]} /><Bar isAnimationActive={false} dataKey="pendientes" stackId="a" fill="#8B5CF6" radius={[0, 8, 8, 0]} /></BarChart></ResponsiveContainer></div>
+        </Section>
         <Section title="Seguimientos abiertos y canales usados" sub="La entrega no depende de un solo canal">
           <div className="grid h-64 grid-cols-2 gap-2">
-            <ResponsiveContainer><BarChart data={c.followUps}><XAxis dataKey="motivo" {...axis} tick={{ fontSize: 10, fill: '#94A3B8' }} interval={0} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Bar isAnimationActive={false} dataKey="abiertos" fill="#8B5CF6" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+            <ResponsiveContainer><BarChart data={c.followUps}><XAxis dataKey="motivo" {...axis} tick={{ fontSize: 10, fill: '#A1A6C8' }} interval={0} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Bar isAnimationActive={false} dataKey="abiertos" fill="#8B5CF6" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
             <ResponsiveContainer><BarChart data={c.channels}><XAxis dataKey="canal" {...axis} /><YAxis allowDecimals={false} {...axis} /><Tooltip {...tip} /><Bar isAnimationActive={false} dataKey="avisos" fill="#38BDF8" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
           </div>
         </Section>

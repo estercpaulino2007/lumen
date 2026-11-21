@@ -6,7 +6,9 @@ Prototipo para el **Reto 4 de EIRA Movimiento Rosa A.C.** · Nerdearla Vibeathon
 
 > ⚠️ **Todos los datos son ficticios.** Ninguna persona, laboratorio, teléfono, correo, CURP ni PDF corresponde a pacientes reales. La IA de LUMEN **no diagnostica, no interpreta resultados y no decide nada**: solo lee identificadores, detecta problemas de calidad, sugiere candidatas y ordena filas. Toda entrega exige **revisión administrativa + autorización clínica humanas**.
 
-🇧🇷 [Resumo em português](#-resumo-em-português) · 🇲🇽 Documento principal en español
+🇺🇸 [English summary](#-english-summary) · 🇲🇽 Documento principal en español
+
+**Repositorio:** https://github.com/estercpaulino2007/lumen
 
 ---
 
@@ -53,9 +55,11 @@ Laboratorio sube PDF → huella SHA-256 + cifrado → lectura de identificadores
 | 🎟️ | **Código asistido imprimible** | Para pacientes sin celular, correo o internet: ticket de un solo uso + fecha de nacimiento, con personal de EIRA. |
 | 🔊 | **"Escuchar instrucciones"** (voz en español) | Accesibilidad para baja alfabetización digital. |
 | 📊 | **Contexto con datos públicos reales** | INEGI (EDR 2024): 4,646 muertes por cáncer cervicouterino; GLOBOCAN 2024: 11,919 casos nuevos estimados. |
-| ✨ | **Luminy, asistente de IA** (avatar 3D: orbe + technotron) | Prioriza la fila con datos en vivo, explica puntajes, revisa canales y bitácora. Se niega a interpretar resultados y le ofrece a la paciente "quiero que una profesional me contacte" (crea un seguimiento). IA generativa opcional, con datos agregados y guardia DLP también sobre la salida. |
+| ✨ | **Luminy, asistente de IA** (avatar 3D: orbe + technotron, se gira con el mouse) | Base de conocimiento de todo el app en ES/EN ("¿cómo agrego un usuario?", "how do I export a report?"), resúmenes con datos en vivo, explicación de puntajes, canales y bitácora. Se niega a interpretar resultados y le ofrece a la paciente "quiero que una profesional me contacte". Con `ANTHROPIC_API_KEY`, responde preguntas generales y **busca en la web**; recibe solo datos agregados y su salida pasa por la guardia DLP. |
 | 🌐 | **Español / English** | Selector ES/EN en todas las pantallas (login, panel y portal). Español por defecto para el público de EIRA; inglés para aliados y jurado. |
-| 🌌 | **Interfaz con 3D en tiempo real** (three.js / React Three Fiber) | Escultura translúcida en banner y login, laço infinito en el portal. Modelos comprimidos de 6,5 MB a <600 KB; respaldo en CSS si no hay WebGL o con movimiento reducido. |
+| 🌌 | **Interfaz con 3D en tiempo real** (three.js / React Three Fiber) | Escultura en banner y login, lazo infinito en el portal; se pueden girar arrastrando. Modelos comprimidos de 6,5 MB a <600 KB; respaldo en CSS si no hay WebGL o con movimiento reducido. |
+| 👥 | **Gestión de usuarios** | La Administración crea cuentas (contraseña temporal mostrada una sola vez), desactiva usuarios y revoca sesiones y enlaces. |
+| 📈 | **Indicadores propios de EIRA** | Embudo de entrega, municipios atendidos, avisos rescatados por failover, intentos con WhatsApp bloqueado y mensajes frenados por la guardia; saludo y fila según el papel. |
 | 📴 | **Brigada offline** con fila IndexedDB y conflictos por campo | Nada se sobrescribe en silencio; la resolución queda auditada. |
 
 ## 4. Arquitectura
@@ -102,15 +106,32 @@ Producción local: `npm run build && npm start`. Pruebas: `npm test` (14 pruebas
 | `LUMEN_MASTER_KEY` | 64 hex. Deriva cifrado, firmas y seudónimos. Sin ella se usa una clave de demo (aviso en consola). |
 | `VALKEY_URL` | `redis://localhost:6379`. OTP, rate limiting y bloqueos en Valkey (expiran solos y no tocan disco). |
 | `LUMEN_DEMO_MODE` | `true` (por defecto): habilita la carga de demo y muestra el OTP simulado en la Central de Notificaciones. |
-| `ANTHROPIC_API_KEY` | Opcional: IA generativa para Luminy (modelo por defecto `claude-haiku-5-5`, cambiar con `LUMINY_MODEL`). |
+| `ANTHROPIC_API_KEY` | Opcional: IA generativa para Luminy con búsqueda web (modelo por defecto `claude-haiku-5-5`, cambiar con `LUMINY_MODEL`; desactivar la búsqueda con `LUMINY_WEB_SEARCH=false`). |
 | `LUMINY_API_KEY` / `LUMINY_BASE_URL` / `LUMINY_MODEL` | Opcional: cualquier API compatible con OpenAI (OpenAI, Groq, OpenRouter). |
 | `LUMEN_INSECURE_COOKIES` | `1` solo si demuestras con `npm start` desde otro dispositivo por `http://IP-LAN` (en `npm run dev` no hace falta). |
 
-### Publicar en Render (para que los jueces lo abran en la web)
-1. Sube el repositorio a GitHub.
-2. En Render: **New → Blueprint** → elige el repositorio (usa `render.yaml`).
-3. Opcional: en *Environment*, agrega `ANTHROPIC_API_KEY` o `LUMINY_API_KEY` para la IA generativa de Luminy.
-4. Al abrir la URL, pulsa **Cargar datos de demostración**. (En el plan gratuito el disco es efímero: si el servicio se reinicia, vuelve a cargar la demo.)
+### 🚀 Demo en vivo en Render
+
+**URL de la demo:** `https://<tu-servicio>.onrender.com` *(reemplazar por la URL del servicio)*
+
+**Cómo se desplegó (Blueprint, sin configurar nada a mano):**
+1. En https://dashboard.render.com → **Blueprints → New Blueprint Instance** → repositorio `estercpaulino2007/lumen`, rama `main`.
+2. Render lee `render.yaml`: Node 22, `npm ci && npm run build`, `npm run start:render`, health check en `/api/auth/me` y una `LUMEN_MASTER_KEY` generada automáticamente.
+3. **Apply** → en 3–6 min el servicio queda *Live*. Cada `git push` a `main` vuelve a desplegar solo.
+4. Abrir la URL → **Cargar datos de demostración** → elegir un papel.
+
+**Cómo probarla como jurado:**
+- **Personal de EIRA:** elegir un papel en la portada (contraseña `Lumen-2026!`).
+- **Paciente:** botón *Soy paciente* → elegir *María López* → *Recibir código*. Como el SMS es simulado, en modo demo el código aparece en pantalla (*Usar código*). Después: verificación de presencia por cámara (opcional; el detector se sirve desde el propio app, sin CDN; acepta parpadeo o giro de cabeza) → *Ver* / *Descargar*.
+- **Usuarios:** como Administración → *Usuarios y accesos* → *Agregar usuario*.
+- **Luminy:** botón inferior derecho; prueba "¿Qué hay pendiente hoy?", "¿cómo agrego un usuario?" y "¿el resultado de María es anormal?" (límite clínico).
+- **WhatsApp bloqueado:** María prefiere WhatsApp, pero el canal está caído por defecto; el aviso sale por SMS y la *Central de Notificaciones* muestra el failover. Encender WhatsApp ahí cambia el canal en el siguiente aviso.
+
+**Notas del plan gratuito de Render:**
+- El servicio se duerme tras ~15 min sin uso; la primera visita tarda ~50 s en despertar.
+- El disco es efímero: al reiniciar se pierden los datos de demo → volver a pulsar *Cargar datos de demostración*.
+- IA generativa de Luminy (opcional): *Environment* → `ANTHROPIC_API_KEY` (incluye búsqueda web) o `LUMINY_API_KEY` (+ `LUMINY_BASE_URL`, `LUMINY_MODEL`, sin búsqueda web). Sin clave, Luminy responde con su base de conocimiento y datos en vivo.
+- Para producción: plan con disco persistente o PostgreSQL (`docs/schema.prisma`), almacenamiento S3 y Valkey administrado (ver `ROADMAP.md`).
 
 Valkey opcional: `docker run -p 6379:6379 valkey/valkey` y `VALKEY_URL=redis://localhost:6379`.
 
@@ -175,14 +196,17 @@ Ver [ROADMAP.md](ROADMAP.md). Resumen: PostgreSQL + S3 + KMS, proveedor de SMS c
 
 ---
 
-## 🇧🇷 Resumo em português
+## 🇺🇸 English summary
 
-**LUMEN** substitui a entrega de resultados de Papanicolau por WhatsApp por um fluxo seguro e auditável: o laboratório envia o PDF, o sistema calcula o hash e cifra o arquivo, extrai apenas os identificadores (nunca a parte clínica), sugere a paciente com um score explicável (40 % nome, 25 % data de nascimento, 15 % telefone, 10 % município, 10 % folio/data da coleta) e **nada é liberado sem dupla revisão humana** (administrativa + clínica, por pessoas diferentes). A paciente recebe um aviso neutro (sem nenhuma informação clínica, verificado por uma guarda DLP), entra com OTP ou código assistido, pode fazer uma verificação de presença opcional com câmera (100 % no dispositivo) e abre o PDF por um link assinado de 5 minutos, vinculado à sessão e com marca d'água. Se não abrir em 48 h, a EIRA recebe uma tarefa de acompanhamento. Tudo fica num log encadeado por hash.
+**LUMEN** replaces WhatsApp delivery of Pap smear results with a secure, auditable flow for **EIRA Movimiento Rosa A.C.** (Mexico). The lab uploads the PDF; LUMEN fingerprints it (SHA-256), encrypts it at rest (AES-256-GCM), extracts **only identifiers** (never the clinical section) and suggests the matching patient with an **explainable score** (40% name, 25% date of birth, 15% phone, 10% municipality, 10% sample ID / collection date), including namesake detection and real Mexican CURP validation. **Nothing is released automatically:** an EIRA staff member confirms the match and a different person, a health professional, authorizes delivery with a reason and password re-authentication.
 
-**Diferenciais:** failover multicanal (se o WhatsApp cair, a entrega continua), validação real de CURP, detecção de homônimas, modo offline com resolução de conflitos, exportação anonimizada e dados públicos reais do INEGI/GLOBOCAN.
+The patient receives a **neutral notice** (checked by a clinical DLP guard so it never contains medical information) through a **multichannel orchestrator with automatic failover** (SMS → email → WhatsApp Business → assisted service), so deliveries continue even if WhatsApp is blocked. She signs in with a one-time code or a printed **assisted code** (for patients without a phone or internet), can do an optional **on-device presence check** (the image never leaves the device), and opens the PDF through a **5-minute signed link bound to her session**, with a dynamic watermark. If she doesn't open it within 48 h, EIRA gets a follow-up task. Every step goes into a **hash-chained, append-only audit log**.
 
-**Rodar:** `npm install && npm run dev` → abrir `http://localhost:3000` → "Cargar datos de demostración". Senha de todos os usuários fictícios: `Lumen-2026!`.
+**Also included:** Luminy, an AI assistant with a draggable 3D avatar and a bilingual knowledge base of the whole app that prioritizes the queue from live data and refuses to interpret results (optional generative AI with web search that only receives aggregated counts); user management (admins create accounts with one-time temporary passwords); EIRA-specific indicators (delivery funnel, municipalities served, notices rescued by failover); an offline brigade mode with per-field conflict resolution; anonymized CSV/JSON export; real public data from INEGI/GLOBOCAN; an **ES/EN language toggle**; and accessibility features (text size, high contrast, keyboard navigation, read-aloud instructions).
 
-**Implementado vs. simulado:** os provedores de SMS/e-mail/WhatsApp, as quedas de canal, o OCR de imagens escaneadas e a "outra brigada" do conflito offline são simulados e sinalizados na interface. Todo o resto funciona de verdade. Não usa dados reais de pacientes nem promete conformidade legal: isso faz parte do roadmap do piloto.
+**Run locally:** `npm install && npm run dev` → open `http://localhost:3000` → click "Cargar datos de demostración". Every fictitious user's password is `Lumen-2026!`.
+**Live demo / deploy:** Render Blueprint using the included `render.yaml` (free plan: first visit after idle takes ~50 s; demo data must be reloaded after a restart). In demo mode the patient's one-time code is shown on screen because SMS is simulated.
 
-Licença MIT.
+**Implemented vs. simulated:** SMS/email/WhatsApp providers, channel outages, OCR of scanned images and the "other brigade" in the offline conflict demo are simulated and labeled in the UI. Everything else really works. No real patient data is used, and no legal compliance is claimed; that belongs to the pilot roadmap.
+
+MIT License.

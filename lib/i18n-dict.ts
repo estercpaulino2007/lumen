@@ -1,5 +1,11 @@
 // Diccionario ES → EN. La interfaz está escrita en español (público principal: México) y se traduce en el navegador.
 export const EXACT: Record<string, string> = {
+  'Agregar usuario': 'Add user', 'Se genera una contraseña temporal que se muestra una sola vez. Queda en la auditoría.': 'A temporary password is generated and shown only once. It is audited.', 'Crear': 'Create', 'Arrastra para girar': 'Drag to rotate',
+  'Base de conocimiento de LUMEN': 'LUMEN knowledge base',
+  'Embudo de entrega': 'Delivery funnel', 'Dónde se quedan los resultados en el camino a la paciente': 'Where results get stuck on the way to the patient', 'Recibidos': 'Received', 'Leídos': 'Read', 'Asociación confirmada': 'Match confirmed', 'Avisados': 'Notified',
+  'avisos rescatados por failover': 'notices rescued by failover', 'intentos con WhatsApp bloqueado': 'attempts with WhatsApp blocked', 'mensajes frenados por la guardia': 'messages stopped by the guard', 'Municipios atendidos': 'Municipalities served',
+  'Resultados consultados vs. pendientes por comunidad': 'Viewed vs. pending results by community', 'atendidas': 'served', 'Ir a mi fila': 'Go to my queue', 'Pacientes de demostración (ficticias)': 'Demo patients (fictitious)', 'Modo demo · SMS simulado': 'Demo mode · simulated SMS', 'Usar código': 'Use code',
+  'Tu código:': 'Your code:', 'Ana Karen · correo': 'Ana Karen · email',
   'Inicio': 'Home', 'Resultados': 'Results', 'Cargar resultados': 'Upload results', 'Autorización clínica': 'Clinical authorization', 'Pacientes': 'Patients', 'Notificaciones': 'Notifications',
   'Seguimiento': 'Follow-up', 'Brigada offline': 'Offline brigade', 'Auditoría': 'Audit', 'Reportes': 'Reports', 'Privacidad': 'Privacy', 'Usuarios y accesos': 'Users & access',
   'Implementado vs simulado': 'Implemented vs simulated', 'Implementado vs. simulado': 'Implemented vs. simulated', 'Coordinación EIRA': 'EIRA Coordination', 'Profesional de salud': 'Health professional',
@@ -31,7 +37,7 @@ export const EXACT: Record<string, string> = {
   'Un resultado que no llega, o que llega a la persona equivocada, es una oportunidad de detección perdida. LUMEN mide cada etapa para que ninguna paciente quede sin seguimiento.': 'A result that never arrives, or reaches the wrong person, is a missed detection opportunity. LUMEN measures every stage so no patient is left without follow-up.',
   'Estado del sistema': 'System status', 'Almacén efímero (OTP, límites)': 'Ephemeral store (OTP, limits)', 'Fila de trabajos': 'Job queue', 'Canales activos': 'Active channels',
   'Errores de lectura de documento': 'Document reading errors', 'Ir a revisión': 'Go to review', 'recibidos': 'received', 'autorizados': 'authorized', 'consultados': 'viewed', 'pendientes': 'pending', 'entregados': 'delivered', 'fallos OCR': 'OCR failures',
-  'Nuevo resultado cargado': 'New result uploaded', 'Asociación sugerida': 'Suggested match', 'Asociación confirmada': 'Match confirmed', 'Autorización clínica completada': 'Clinical authorization completed',
+  'Nuevo resultado cargado': 'New result uploaded', 'Asociación sugerida': 'Suggested match', 'Autorización clínica completada': 'Clinical authorization completed',
   'Aviso enviado a la paciente': 'Notice sent to the patient', 'Documento descargado por la paciente': 'Document downloaded by the patient', 'Documento consultado por la paciente': 'Document viewed by the patient',
   'Seguimiento creado': 'Follow-up created', 'Corrección solicitada al laboratorio': 'Correction requested from the lab', 'Mensaje bloqueado por la guardia clínica': 'Message blocked by the clinical guard',
   // Estados
@@ -143,6 +149,11 @@ export const EXACT: Record<string, string> = {
 
 // Fragmentos para textos dinámicos (se aplican solo si no hubo coincidencia exacta). Más largos primero.
 export const FRAG: [string, string][] = [
+  ['creado. Contraseña temporal (se muestra una sola vez):', 'created. Temporary password (shown only once):'], ['Usuario', 'User'],
+  ['Modo demo: ese contacto no está en los datos de demostración. Usa 55 5123 1234 o anakaren.ruiz@ejemplo.test (o vuelve a cargar la demo).', 'Demo mode: that contact is not in the demo data. Use 55 5123 1234 or anakaren.ruiz@ejemplo.test (or reload the demo).'],
+  ['Tienes', 'You have'], ['resultados esperando tu autorización.', 'results awaiting your authorization.'], ['Hoy tienes', 'Today you have'], ['documentos por revisar y', 'documents to review and'], ['pacientes por contactar.', 'patients to contact.'],
+  ['Bitácora con', 'Audit log with'], ['eventos verificados y', 'verified events and'], ['seguimientos abiertos.', 'open follow-ups.'], ['Sin asociar', 'Unmatched'],
+  ['Si tus datos están registrados, recibirás un código de 6 dígitos en unos segundos.', 'If your details are registered, you will receive a 6-digit code in a few seconds.'],
   ['Folio de muestra / fecha de toma', 'Sample ID / collection date'], ['Fecha de nacimiento', 'Date of birth'], ['Puntaje final', 'Final score'], ['parcial — últimos 4 dígitos coinciden', 'partial — last 4 digits match'],
   ['registrado en la jornada', 'registered at the health day'], ['folio de muestra', 'sample ID'], ['no disponible en el documento', 'not available in the document'], ['no disponible', 'not available'],
   ['la paciente no tiene teléfono registrado', 'the patient has no registered phone'], ['coincide completo', 'full match'], ['— coincide', '— match'], ['no coincide con visitas registradas', 'does not match registered visits'],

@@ -1,6 +1,6 @@
 'use client';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, useAnimations, Environment, Lightformer, Float, Sparkles } from '@react-three/drei';
+import { useGLTF, useAnimations, Environment, Lightformer, Float, Sparkles, OrbitControls } from '@react-three/drei';
 import { Component, ReactNode, Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
@@ -35,7 +35,7 @@ function Studio() {
 
 const glass = () => new THREE.MeshPhysicalMaterial({
   color: '#a78bfa', metalness: 0.55, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05,
-  iridescence: 1, iridescenceIOR: 1.35, iridescenceThicknessRange: [120, 520], transmission: 0.15, thickness: 1.2, ior: 1.4,
+  iridescence: 1, iridescenceIOR: 1.35, transmission: 0.15, thickness: 1.2, ior: 1.4,
   emissive: new THREE.Color('#5b21b6'), emissiveIntensity: 0.22, envMapIntensity: 2.2,
 });
 
@@ -55,13 +55,14 @@ function Sculpture({ model, size }: { model: 'torus' | 'infinity'; size: number 
 export function HeroSculpture({ model = 'torus', className = '', size = 3.2, sparkles = true }: { model?: 'torus' | 'infinity'; className?: string; size?: number; sparkles?: boolean }) {
   const fb = <div className={`grid place-items-center ${className}`}><div className="orb-fallback h-40 w-40 rounded-full" /></div>;
   return (
-    <div className={className} aria-hidden="true">
+    <div className={`${className} cursor-grab active:cursor-grabbing`} aria-hidden="true" title="Arrastra para girar">
       <Safe fallback={fb}>
         <Canvas dpr={[1, 1.6]} camera={{ position: [0, 0, 6], fov: 38 }} gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}>
           <ambientLight intensity={0.4} />
           <Suspense fallback={null}>
             <Float speed={1.4} rotationIntensity={0.25} floatIntensity={0.6}><Sculpture model={model} size={size} /></Float>
             {sparkles && <Sparkles count={40} scale={[6, 4, 3]} size={2.2} speed={0.35} color="#c4b5fd" opacity={0.7} />}
+            <OrbitControls enableZoom={false} enablePan={false} enableDamping rotateSpeed={0.7} />
             <Studio />
           </Suspense>
         </Canvas>
@@ -92,7 +93,7 @@ function LuminyModel({ active }: { active?: boolean }) {
   return <group ref={ref}><primitive object={outer.g} /><primitive object={inner} /></group>;
 }
 
-export function LuminyAvatar({ className = '', active = false }: { className?: string; active?: boolean }) {
+export function LuminyAvatar({ className = '', active = false, interactive = false }: { className?: string; active?: boolean; interactive?: boolean }) {
   const fb = <div className={`grid place-items-center ${className}`}><div className="orb-fallback h-3/4 w-3/4 rounded-full" /></div>;
   return (
     <div className={className} aria-hidden="true">
@@ -100,6 +101,7 @@ export function LuminyAvatar({ className = '', active = false }: { className?: s
         <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 5], fov: 40 }} gl={{ antialias: true, alpha: true }}>
           <ambientLight intensity={0.6} /><pointLight position={[2, 3, 4]} intensity={30} color="#c4b5fd" />
           <Suspense fallback={null}><LuminyModel active={active} /><Studio /></Suspense>
+          {interactive && <OrbitControls enableZoom={false} enablePan={false} enableDamping rotateSpeed={0.8} />}
         </Canvas>
       </Safe>
     </div>

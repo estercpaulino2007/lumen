@@ -10,3 +10,6 @@ Los modelos se optimizaron (simplificación de malla + compresión meshopt con g
 | Estructura de Luminy | Technotron | tamminen | CC BY 4.0 | https://sketchfab.com/3d-models/technotron-3761d1f6f56d4a6499b64e63f64c9c96 |
 
 Licencias: https://creativecommons.org/licenses/by/4.0/ · https://creativecommons.org/licenses/by-sa/4.0/
+
+## Otras bibliotecas incluidas
+- `public/faceapi/`: face-api.js de Vladimir Mandic (MIT) y modelos TinyFaceDetector / FaceLandmark68Tiny. Se sirven localmente y se ejecutan solo en el navegador.

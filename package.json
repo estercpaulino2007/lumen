@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
-  "description": "LUMEN \u2014 Plataforma segura de entrega y verificaci\u00f3n de resultados de Papanicolaou (prototipo, datos ficticios)",
+  "description": "LUMEN — Plataforma segura de entrega y verificación de resultados de Papanicolaou (prototipo, datos ficticios)",
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",

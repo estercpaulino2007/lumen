@@ -67,7 +67,7 @@ export default function Brigada() {
           </form>
         </Section>
         <Section title="Editar teléfono (demo de conflicto)" sub="1) Desconecta · 2) edita · 3) simula la otra brigada · 4) reconecta">
-          <select className="input" value={edit.id} onChange={(e) => setEdit({ ...edit, id: e.target.value })} aria-label="Paciente"><option value="">Elegir paciente (desde caché local)</option>{cache.map((p) => <option key={p.id} value={p.id}>{p.fullName} · {p.phoneMasked || 'sin tel.'}</option>)}</select>
+          <select className="input" value={edit.id} onChange={(e) => setEdit({ ...edit, id: e.target.value })} aria-label="Paciente"><option value="">Elegir paciente (desde caché local)</option>{cache.filter((p) => !['pac_001', 'pac_003'].includes(p.id)).map((p) => <option key={p.id} value={p.id}>{p.fullName} · {p.phoneMasked || 'sin tel.'}</option>)}</select>
           <div className="mt-2 flex gap-2"><input className="input" placeholder="Nuevo teléfono" value={edit.phone} onChange={(e) => setEdit({ ...edit, phone: e.target.value })} aria-label="Nuevo teléfono" /><button className="btn-ghost" onClick={upd} disabled={!edit.id || edit.phone.length < 8}><Pencil size={16} />Guardar</button></div>
           <button className="btn-warn mt-3 w-full" onClick={remote}><FlaskConical size={16} />Simular edición desde otra brigada</button>
         </Section>

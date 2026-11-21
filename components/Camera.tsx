@@ -5,7 +5,7 @@ import { Camera, Loader2, ScanFace, ShieldCheck, FlaskConical } from 'lucide-rea
 // Verificación de PRESENCIA (liveness) hecha 100% en el dispositivo con face-api.js.
 // La imagen y el vector facial nunca se envían al servidor; solo se reporta aprobado/no aprobado y un puntaje.
 // No analiza el examen, no diagnostica y no decide la liberación del resultado.
-const CDN = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15';
+const CDN = '/faceapi'; // face-api.js (MIT) servido localmente: funciona sin CDN
 type Outcome = { outcome: 'passed' | 'failed'; score: number; method: 'face-api-liveness' | 'simulacion-rotulada'; challenge: string };
 
 function loadScript(src: string) {
@@ -26,7 +26,7 @@ export function PresenceCheck({ onDone }: { onDone: (o: Outcome) => void }) {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 360 }, audio: false });
         if (video.current) { video.current.srcObject = stream; await video.current.play(); }
         setMsg('Cargando el detector de rostro (se ejecuta en tu dispositivo)…');
-        await Promise.race([loadScript(CDN + '/dist/face-api.js'), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000))]);
+        await Promise.race([loadScript(CDN + '/face-api.js'), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 12000))]);
         const fa = (window as any).faceapi;
         await fa.nets.tinyFaceDetector.loadFromUri(CDN + '/model');
         await fa.nets.faceLandmark68TinyNet.loadFromUri(CDN + '/model');
@@ -59,6 +59,7 @@ export function PresenceCheck({ onDone }: { onDone: (o: Outcome) => void }) {
         stream?.getTracks().forEach((t) => t.stop());
         if (!stop) onDone({ outcome: passed && avg > 0.5 ? 'passed' : 'failed', score: Math.round(avg * 100) / 100, method: 'face-api-liveness', challenge: challenge.current });
       } catch (e: any) {
+        console.error('[camera]', e?.name, e?.message || e);
         stream?.getTracks().forEach((t) => t.stop());
         if (!stop) { setPhase('error'); setMsg(e?.name === 'NotAllowedError' ? 'No diste permiso para usar la cámara.' : 'No se pudo iniciar el detector en este dispositivo o sin conexión.'); }
       }
@@ -75,6 +76,7 @@ export function PresenceCheck({ onDone }: { onDone: (o: Outcome) => void }) {
         <div className="absolute inset-x-0 bottom-0 h-1.5 bg-s2"><div className="h-full bg-safe transition-all" style={{ width: `${progress * 100}%` }} /></div>
       </div>
       <p className="text-center text-sm" aria-live="polite">{phase === 'running' && <ScanFace size={16} className="mr-1 inline text-sky" />}{msg}</p>
+      {phase === 'running' && <div className="text-center"><button className="btn-ghost text-xs" onClick={() => onDone({ outcome: 'failed', score: 0, method: 'face-api-liveness', challenge: 'omitido' })}>Continuar sin cámara</button></div>}
       {phase === 'error' && (
         <div className="space-y-2 text-center">
           <button className="btn-warn" onClick={() => onDone({ outcome: 'passed', score: 0.9, method: 'simulacion-rotulada', challenge: 'simulado' })}><FlaskConical size={16} />Simular verificación (modo demo, rotulado)</button>

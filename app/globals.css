@@ -2,7 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --fs: 16px; }
+:root { --fs: 15px; color-scheme: dark; }
+* { scrollbar-width: thin; scrollbar-color: rgba(139,92,246,.45) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(139,92,246,.55), rgba(99,102,241,.45)); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background-color: rgba(167,139,250,.8); }
+*::-webkit-scrollbar-corner { background: transparent; }
+.no-scrollbar { scrollbar-width: none; } .no-scrollbar::-webkit-scrollbar { display: none; }
 html { font-size: var(--fs); background: #06061A; color: #F8FAFC; }
 body { font-family: Inter, system-ui, sans-serif; min-height: 100vh; background:
   radial-gradient(1100px 620px at 78% -8%, rgba(139,92,246,.22), transparent 60%),

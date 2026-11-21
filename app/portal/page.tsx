@@ -22,14 +22,14 @@ function speak(t: string) { try { const u = new SpeechSynthesisUtterance(t); u.l
 export default function Portal() {
   const [step, setStep] = useState<Step>('contact');
   const [contact, setContact] = useState(''), [code, setCode] = useState(''), [aCode, setACode] = useState(''), [dob, setDob] = useState('');
-  const [busy, setBusy] = useState(false), [err, setErr] = useState(''), [info, setInfo] = useState('');
+  const [busy, setBusy] = useState(false), [err, setErr] = useState(''), [info, setInfo] = useState(''), [demoCode, setDemoCode] = useState('');
   const [docs, setDocs] = useState<any>(null), [cameraOk, setCameraOk] = useState(false), [links, setLinks] = useState<Record<string, any>>({});
 
   const loadDocs = useCallback(async () => { const d = await apiFetch('/api/portal/documents'); setDocs(d); setStep('docs'); }, []);
   useEffect(() => { apiFetch('/api/portal/documents').then((d) => { setDocs(d); setStep('docs'); }).catch(() => {}); }, []);
   const run = async (f: () => Promise<void>) => { setBusy(true); setErr(''); try { await f(); } catch (e: any) { setErr(e.message); } finally { setBusy(false); } };
 
-  const start = () => run(async () => { const r = await apiFetch('/api/portal/start', { body: { contact } }); setInfo(r.message + (r.demo ? ' ' + r.demo : '')); setStep('otp'); });
+  const start = () => run(async () => { const r = await apiFetch('/api/portal/start', { body: { contact } }); setInfo(r.message + (r.demo && !r.demoCode ? ' ' + r.demo : '')); setDemoCode(r.demoCode || ''); setStep('otp'); });
   const verify = () => run(async () => { const r = await apiFetch('/api/portal/verify', { body: { contact, code } }); setStep(r.cameraConsent ? 'camera-intro' : 'camera-intro'); });
   const assisted = () => run(async () => { await apiFetch('/api/portal/assisted', { body: { code: aCode, dateOfBirth: dob } }); await loadDocs(); });
   const camDone = useCallback(async (o: any) => { await apiFetch('/api/portal/camera', { body: o }).catch(() => {}); if (o.outcome === 'passed') { setCameraOk(true); await loadDocs(); } else setStep('camera-failed'); }, [loadDocs]);
@@ -50,7 +50,13 @@ export default function Portal() {
           <div><h1 className="text-2xl font-semibold">Portal seguro</h1><p className="text-mute">Consulta tus documentos con un código de seguridad.</p></div>
           <div><label className="label" htmlFor="c">Celular o correo electrónico</label><input id="c" className="input text-lg" inputMode="email" placeholder="55 5123 1234" value={contact} onChange={(e) => setContact(e.target.value)} autoComplete="tel" /></div>
           <button className="btn-primary w-full text-base" disabled={busy || contact.length < 5} onClick={start}>{busy ? <Loader2 className="animate-spin" size={18} /> : <KeyRound size={18} />}Recibir código</button>
-          <Note>Demo: usa <b>55 5123 1234</b> (María López, ficticia) o <b>anakaren.ruiz@ejemplo.test</b>.</Note>
+          <div className="space-y-2 rounded-xl2 border border-vio/30 bg-vio/10 p-3 text-sm">
+            <div className="font-semibold text-lila">Pacientes de demostración (ficticias)</div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button className="btn-ghost justify-start text-left text-xs" onClick={() => setContact('55 5123 1234')}>María López · 55 5123 1234</button>
+              <button className="btn-ghost justify-start text-left text-xs" onClick={() => setContact('anakaren.ruiz@ejemplo.test')}>Ana Karen · correo</button>
+            </div>
+          </div>
           <button className="card-2 w-full p-4 text-left" onClick={() => setStep('assisted')}>
             <div className="flex items-center gap-2 font-semibold"><HandHeart size={18} className="text-vio" />No tengo celular o acceso a internet</div>
             <p className="mt-1 text-sm text-mute">EIRA puede generar un código de acceso asistido. Un profesional autorizado podrá validar tu identidad presencialmente.</p>
@@ -58,6 +64,7 @@ export default function Portal() {
         </>)}
         {step === 'otp' && (<>
           <div><h1 className="text-2xl font-semibold">Escribe tu código</h1><p className="text-sm text-mute">{info}</p></div>
+          {demoCode && <div className="flex items-center justify-between gap-3 rounded-xl2 border border-warn/40 bg-warn/10 p-3 text-sm"><span><span className="block text-xs text-warn">Modo demo · SMS simulado</span>Tu código: <b className="font-display text-lg tracking-widest">{demoCode}</b></span><button className="btn-ghost text-xs" onClick={() => setCode(demoCode)}>Usar código</button></div>}
           <input className="input text-center font-display text-3xl tracking-[0.5em]" inputMode="numeric" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} aria-label="Código de 6 dígitos" autoComplete="one-time-code" />
           <button className="btn-primary w-full text-base" disabled={busy || code.length !== 6} onClick={verify}>{busy ? <Loader2 className="animate-spin" size={18} /> : <ShieldCheck size={18} />}Verificar</button>
           <p className="flex items-center gap-1 text-xs text-mute"><Clock size={12} />Vence en 5 minutos · máximo 5 intentos</p>

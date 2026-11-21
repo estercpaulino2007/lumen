@@ -35,6 +35,7 @@ export const POST = api(async (req) => {
     });
   })();
   if (sent === 'locked') throw new HttpError(423, 'Acceso bloqueado temporalmente por intentos fallidos. Intenta en 15 minutos o solicita atención asistida.');
+  const demoMode = process.env.LUMEN_DEMO_MODE !== 'false';
   if (sent) audit({ actorRole: 'paciente', actorId: 'pendiente', action: 'otp.generado', entityType: 'SecureAccess', entityId: sent, ...m });
-  return json({ ...generic, demo: process.env.LUMEN_DEMO_MODE !== 'false' ? 'Modo demo: el SMS simulado aparece en la Central de Notificaciones.' : null });
+  return json({ ...generic, demo: demoMode ? (sent ? 'Modo demo: el SMS es simulado, por eso te mostramos el código aquí. En producción solo llega a tu celular.' : 'Modo demo: ese contacto no está en los datos de demostración. Usa 55 5123 1234 o anakaren.ruiz@ejemplo.test (o vuelve a cargar la demo).') : null, demoCode: demoMode && sent ? code : null });
 });

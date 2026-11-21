@@ -17,16 +17,16 @@ const LABS = [
   { id: 'lab_citonorte', name: 'Laboratorio Citológico del Norte (ficticio)' },
   { id: 'lab_rosa', name: 'Diagnóstica Integral Rosa (ficticio)' },
 ];
-type P = { n: string; p: string; m: string; dob: string; phone?: string; email?: string; mun: string; access?: string; visits: [string, string][] };
+type P = { n: string; p: string; m: string; dob: string; phone?: string; email?: string; mun: string; access?: string; wa?: boolean; visits: [string, string][] };
 const PEOPLE: P[] = [
-  { n: 'María', p: 'López', m: 'Hernández', dob: '1985-03-14', phone: '5551231234', email: 'maria.lopez@ejemplo.test', mun: 'Nezahualcóyotl', visits: [['EIRA-M-0101', '2026-05-10'], ['EIRA-M-0457', '2026-11-12']] },
+  { n: 'María', p: 'López', m: 'Hernández', dob: '1985-03-14', phone: '5551231234', email: 'maria.lopez@ejemplo.test', mun: 'Nezahualcóyotl', wa: true, visits: [['EIRA-M-0101', '2026-05-10'], ['EIRA-M-0457', '2026-11-12']] },
   { n: 'María Guadalupe', p: 'López', m: 'Hernández', dob: '1979-07-02', phone: '5559879871', mun: 'Nezahualcóyotl', visits: [['EIRA-M-0458', '2026-11-12']] },
   { n: 'Ana Karen', p: 'Ruiz', m: 'Sánchez', dob: '1992-10-21', email: 'anakaren.ruiz@ejemplo.test', mun: 'Chimalhuacán', access: 'sin_telefono', visits: [['EIRA-M-0460', '2026-11-12']] },
   { n: 'Josefina', p: 'Martínez', m: 'Cruz', dob: '1958-01-30', mun: 'Chalco', access: 'sin_internet', visits: [['EIRA-M-0461', '2026-11-12']] },
-  { n: 'Rosa Elena', p: 'Domínguez', m: 'Vega', dob: '1975-06-09', phone: '5554448812', mun: 'Ecatepec de Morelos', visits: [['EIRA-M-0462', '2026-11-13']] },
-  { n: 'Patricia', p: 'Morales', m: 'Flores', dob: '1988-12-02', phone: '5553337720', mun: 'Ecatepec de Morelos', visits: [['EIRA-M-0463', '2026-11-13']] },
+  { n: 'Rosa Elena', p: 'Domínguez', m: 'Vega', dob: '1975-06-09', phone: '5554448812', mun: 'Ecatepec de Morelos', wa: true, visits: [['EIRA-M-0462', '2026-11-13']] },
+  { n: 'Patricia', p: 'Morales', m: 'Flores', dob: '1988-12-02', phone: '5553337720', mun: 'Ecatepec de Morelos', wa: true, visits: [['EIRA-M-0463', '2026-11-13']] },
   { n: 'Luz María', p: 'Torres', m: 'Jiménez', dob: '1969-04-17', phone: '5552226641', email: 'luzmaria.t@ejemplo.test', mun: 'Texcoco', visits: [['EIRA-M-0464', '2026-11-13']] },
-  { n: 'Verónica', p: 'Castillo', m: 'Reyes', dob: '1981-09-25', phone: '5556662093', mun: 'Texcoco', visits: [['EIRA-M-0465', '2026-11-14']] },
+  { n: 'Verónica', p: 'Castillo', m: 'Reyes', dob: '1981-09-25', phone: '5556662093', mun: 'Texcoco', wa: true, visits: [['EIRA-M-0465', '2026-11-14']] },
   { n: 'Alejandra', p: 'Gómez', m: 'Navarro', dob: '1995-02-11', phone: '5557775530', mun: 'Chimalhuacán', visits: [['EIRA-M-0466', '2026-11-14']] },
   { n: 'Carmen', p: 'Salas', m: 'Ortega', dob: '1972-08-05', phone: '5558884417', mun: 'Chalco', visits: [['EIRA-M-0467', '2026-11-14']] },
 ];
@@ -37,8 +37,8 @@ export function buildPatient(x: P, i: number, at: Date) {
     id: 'pac_' + String(i + 1).padStart(3, '0'), internalCode: 'EIRA-' + (7000 + i * 37).toString(36).toUpperCase(), fictitious: true,
     fullName, dateOfBirth: x.dob, curp: syntheticCurp(x.n, x.p, x.m, x.dob, 'MC'), phone: x.phone ? '+52' + x.phone : null, email: x.email || null, municipality: x.mun,
     digitalAccess: x.access || 'completo',
-    consentFlags: { sms: !!x.phone, email: !!x.email, whatsapp: false, camera: true, research_anon: true, signedAt: at.toISOString(), version: 'v1-demo' },
-    channelOrder: ['sms', 'email', 'whatsapp'], identityVerificationLevel: 'basic', faceReferenceHash: null, faceReferenceVector: null,
+    consentFlags: { sms: !!x.phone, email: !!x.email, whatsapp: !!x.wa, camera: true, research_anon: true, signedAt: at.toISOString(), version: 'v1-demo' },
+    channelOrder: x.wa ? ['whatsapp', 'sms', 'email'] : ['sms', 'email', 'whatsapp'], identityVerificationLevel: 'basic', faceReferenceHash: null, faceReferenceVector: null,
     visits: x.visits.map(([f, d], k) => ({ id: `vis_${i}_${k}`, jornada: d.startsWith('2026-05') ? 'Jornada Neza · mayo 2026' : 'Jornada Oriente Edomex · nov 2026', sampleFolio: f, collectedAt: d, services: ['Papanicolaou'] })),
     createdAt: at.toISOString(), createdBy: 'usr_captura', status: 'active', version: 1, updatedAt: at.toISOString(), fieldUpdatedAt: {},
   };
